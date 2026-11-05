@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevisPilot | Ne laissez plus vos devis sans suivi</title>
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            pilot: {
+              dark: "#101B33",
+              secondary: "#1C2D4F",
+              surface: "#F5F7FB",
+              muted: "#64748B",
+              border: "#E2E8F0",
+              success: "#16A36A",
+              warning: "#E99A32",
+              danger: "#D94B4B",
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body class="bg-[#F5F7FB] text-[#101B33] flex min-h-screen antialiased">
+
+  <!-- BARRE LATÉRALE (SIDEBAR) -->
+  <aside class="w-64 bg-[#101B33] text-white flex flex-col shrink-0 min-h-screen border-r border-[#1C2D4F] sticky top-0 h-screen">
+    <div class="p-5 border-b border-[#1C2D4F] flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#16A36A] to-[#25D386] flex items-center justify-center font-bold text-white shadow-md">
+          DP
+        </div>
+        <div>
+          <h1 class="text-base font-bold tracking-tight text-white leading-none">DevisPilot</h1>
+          <p class="text-[10px] text-[#64748B] mt-1 font-medium">Relances BTP automatisées</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+      <p class="px-3 text-[10px] font-semibold text-[#64748B] uppercase tracking-wider mb-2">Gestion Commerciale</p>
+
+      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold bg-[#1C2D4F] text-white">
+        <span class="flex items-center gap-3"><i class="fa-solid fa-chart-pie text-[#16A36A]"></i> Tableau de bord</span>
+      </button>
+
+      <button onclick="switchTab('quotes')" id="nav-quotes" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-[#1C2D4F]/50">
+        <span class="flex items-center gap-3"><i class="fa-solid fa-file-lines text-slate-400"></i> Devis</span>
+        <span class="bg-[#101B33] px-1.5 py-0.5 rounded text-[10px] text-slate-400 border border-slate-700">5</span>
+      </button>
+
+      <button onclick="switchTab('followups')" id="nav-followups" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-[#1C2D4F]/50">
+        <span class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-slate-400"></i> Relances</span>
+        <span class="px-2 py-0.5 text-[10px] font-bold bg-[#E99A32] text-[#101B33] rounded-full">2</span>
+      </button>
+
+      <button onclick="switchTab('import')" id="nav-import" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-[#1C2D4F]/50">
+        <span class="flex items-center gap-3"><i class="fa-solid fa-cloud-arrow-up text-slate-400"></i> Importer un devis</span>
+        <span class="text-[9px] bg-[#101B33] px-1 py-0.5 rounded text-slate-400 border border-slate-700">PDF/CSV</span>
+      </button>
+
+      <button onclick="switchTab('subscription')" id="nav-subscription" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium text-slate-300 hover:bg-[#1C2D4F]/50">
+        <span class="flex items-center gap-3"><i class="fa-solid fa-credit-card text-slate-400"></i> Abonnement</span>
+        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 font-bold px-1.5 py-0.5 rounded border border-emerald-500/30">PRO</span>
+      </button>
+    </nav>
+
+    <!-- Footer Profil -->
+    <div class="p-3.5 border-t border-[#1C2D4F] bg-[#0c1426] flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-[#1C2D4F] flex items-center justify-center text-xs font-bold text-slate-300">
+        AM
+      </div>
+      <div class="min-w-0">
+        <p class="text-xs font-semibold text-white truncate">Alpes Menuiserie</p>
+        <p class="text-[10px] text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-shield-halved"></i> Propriétaire</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENEUR DROITE -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-[#E2E8F0] px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center gap-2 text-xs text-amber-800 bg-amber-50 px-3 py-1 rounded-md border border-amber-200 font-medium">
+        <i class="fa-solid fa-shield-check text-amber-600"></i> Mode Démonstration Actif (Données d'exemples sécurisées)
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="switchTab('quotes')" class="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#101B33] hover:bg-[#1C2D4F] rounded-lg shadow-sm transition-colors">
+          <i class="fa-solid fa-plus"></i> Nouveau devis
+        </button>
+        <div class="flex items-center gap-2 pl-2">
+          <div class="w-8 h-8 rounded-full bg-[#1C2D4F] text-white flex items-center justify-center text-xs font-bold">
+            SV
+          </div>
+          <div class="text-left text-xs hidden sm:block">
+            <p class="font-semibold text-[#101B33]">Stéphane Vernier</p>
+            <p class="text-[10px] text-[#64748B]">stephane@alpes-menuiserie.fr</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ZONE DES PAGES -->
+    <main class="flex-1 p-8 overflow-y-auto">
+
+      <!-- ================= PAGE 1 : DASHBOARD ================= -->
+      <section id="tab-dashboard" class="tab-content active space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-[#101B33]">Tableau de Bord Commercial</h2>
+          <p class="text-sm text-[#64748B]">Synthèse en direct de votre portefeuille de menuiseries et pergolas.</p>
+        </div>
+
+        <!-- 6 KPI CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm">
+            <p class="text-xs font-semibold text-[#64748B] uppercase">Devis en attente</p>
+            <p class="text-xl font-bold text-[#101B33] mt-2">58 700 €</p>
+            <p class="text-xs text-amber-700 font-medium mt-1">4 en négociation</p>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm">
+            <p class="text-xs font-semibold text-[#64748B] uppercase">Devis Acceptés</p>
+            <p class="text-xl font-bold text-[#16A36A] mt-2">21 850 €</p>
+            <p class="text-xs text-slate-500 mt-1">Chiffre d'affaires signé</p>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm">
+            <p class="text-xs font-semibold text-[#64748B] uppercase">Devis Envoyés</p>
+            <p class="text-xl font-bold text-[#101B33] mt-2">5</p>
+            <p class="text-xs text-slate-500 mt-1">Dossiers actifs</p>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm">
+            <p class="text-xs font-semibold text-[#64748B] uppercase">À Relancer</p>
+            <p class="text-xl font-bold text-[#E99A32] mt-2">2</p>
+            <p class="text-xs text-slate-500 mt-1">Dépassement de délai</p>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm">
+            <p class="text-xs font-semibold text-[#64748B] uppercase">Relances en retard</p>
+            <p class="text-xl font-bold text-[#D94B4B] mt-2">1</p>
+            <p class="text-xs text-[#D94B4B] font-medium mt-1">Action requise</p>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm">
+            <p class="text-xs font-semibold text-[#64748B] uppercase">Taux Transfo.</p>
+            <p class="text-xl font-bold text-[#101B33] mt-2">38 %</p>
+            <p class="text-xs text-emerald-600 font-medium mt-1"><i class="fa-solid fa-arrow-trend-up"></i> +4.2% vs N-1</p>
+          </div>
+        </div>
+
+        <!-- RELANCES PRIORITAIRES & ACTIVITÉS -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-base font-semibold text-[#101B33] flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-[#E99A32]"></i> Relances Prioritaires
+              </h3>
+              <button onclick="switchTab('followups')" class="text-xs font-bold text-[#1C2D4F] hover:underline">Voir tout</button>
+            </div>
+
+            <div class="space-y-3">
+              <div class="p-3.5 rounded-lg border border-red-200 bg-red-50/60 flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-[#101B33]">DEV-2026-0428</span>
+                    <span class="text-xs text-[#64748B]">• Marc Lefebvre</span>
+                    <span class="px-1.5 py-0.5 text-[10px] font-bold bg-[#D94B4B] text-white rounded">En retard</span>
+                  </div>
+                  <p class="text-xs text-slate-700 font-medium mt-1">6 Baies vitrées Aluminium thermolaqué gris 7016</p>
+                  <p class="text-[11px] text-[#64748B] mt-0.5">Étape J+7 • 15 000 € TTC</p>
+                </div>
+                <button onclick="openFollowupModal('DEV-2026-0428', 'Marc Lefebvre', '15 000 €', 'J+7')" class="px-3 py-1.5 text-xs font-semibold rounded bg-[#101B33] text-white hover:bg-[#1C2D4F]">
+                  Valider
+                </button>
+              </div>
+
+              <div class="p-3.5 rounded-lg border border-[#E2E8F0] bg-[#F5F7FB] flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-[#101B33]">DEV-2026-0435</span>
+                    <span class="text-xs text-[#64748B]">• Thomas Dufour</span>
+                    <span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded">J+3</span>
+                  </div>
+                  <p class="text-xs text-slate-700 font-medium mt-1">12 Châssis oscillo-battants acoustiques</p>
+                  <p class="text-[11px] text-[#64748B] mt-0.5">Accusé réception • 29 500 € TTC</p>
+                </div>
+                <button onclick="openFollowupModal('DEV-2026-0435', 'Thomas Dufour', '29 500 €', 'J+3')" class="px-3 py-1.5 text-xs font-semibold rounded bg-[#101B33] text-white hover:bg-[#1C2D4F]">
+                  Valider
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm">
+            <h3 class="text-base font-semibold text-[#101B33] mb-4">Dernières Activités</h3>
+            <div class="space-y-4 text-xs">
+              <div class="flex items-start gap-3 border-b border-[#E2E8F0] pb-3">
+                <span class="w-2 h-2 rounded-full bg-[#16A36A] mt-1.5"></span>
+                <div>
+                  <p class="text-[#101B33] font-medium">Statut passé à 'À relancer' (Dépassement du délai de 7 jours)</p>
+                  <p class="text-[#64748B] mt-0.5">Système DevisPilot • Il y a 3 heures</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 border-b border-[#E2E8F0] pb-3">
+                <span class="w-2 h-2 rounded-full bg-[#1C2D4F] mt-1.5"></span>
+                <div>
+                  <p class="text-[#101B33] font-medium">Appel de qualification effectué avec Mme Garnier (stores zippés validés)</p>
+                  <p class="text-[#64748B] mt-0.5">Stéphane V. • Hier à 16:40</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <span class="w-2 h-2 rounded-full bg-[#D94B4B] mt-1.5"></span>
+                <div>
+                  <p class="text-[#101B33] font-medium">Devis DEV-2026-0419 marqué 'Refusé'. Motif : Prix trop élevé</p>
+                  <p class="text-[#64748B] mt-0.5">Julie B. • Le 03/11 à 11:15</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= PAGE 2 : DEVIS ================= -->
+      <section id="tab-quotes" class="tab-content space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-[#101B33]">Devis Clients</h2>
+            <p class="text-sm text-[#64748B]">Suivi en direct et saisie obligatoire du motif de refus.</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#F5F7FB] border-b border-[#E2E8F0] text-[11px] uppercase font-bold text-[#64748B]">
+              <tr>
+                <th class="px-6 py-4">Numéro / Projet</th>
+                <th class="px-6 py-4">Client</th>
+                <th class="px-6 py-4 text-right">Montant TTC</th>
+                <th class="px-6 py-4">Validité</th>
+                <th class="px-6 py-4">Statut</th>
+                <th class="px-6 py-4 text-center">Action Commerciale</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E2E8F0]">
+              <tr class="hover:bg-slate-50">
+                <td class="px-6 py-4">
+                  <p class="font-bold text-[#101B33]">DEV-2026-0428</p>
+                  <p class="text-slate-500">6 Baies vitrées Aluminium</p>
+                </td>
+                <td class="px-6 py-4 font-medium">Marc Lefebvre</td>
+                <td class="px-6 py-4 text-right font-bold text-[#101B33]">15 000 €</td>
+                <td class="px-6 py-4 text-slate-500">24/11/2026</td>
+                <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-[#E99A32]">À relancer</span></td>
+                <td class="px-6 py-4 text-center space-x-2">
+                  <button onclick="alert('Devis marqué Accepté !')" class="text-xs font-bold text-[#16A36A] hover:underline">Signer</button>
+                  <button onclick="openLossModal('DEV-2026-0428')" class="text-xs font-bold text-[#D94B4B] hover:underline">Marquer Refusé</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-50">
+                <td class="px-6 py-4">
+                  <p class="font-bold text-[#101B33]">DEV-2026-0431</p>
+                  <p class="text-slate-500">Pergola Bioclimatique 24m²</p>
+                </td>
+                <td class="px-6 py-4 font-medium">Élodie Garnier</td>
+                <td class="px-6 py-4 text-right font-bold text-[#101B33]">14 200 €</td>
+                <td class="px-6 py-4 text-slate-500">29/11/2026</td>
+                <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-100 text-[#1C2D4F]">En négociation</span></td>
+                <td class="px-6 py-4 text-center space-x-2">
+                  <button onclick="alert('Devis marqué Accepté !')" class="text-xs font-bold text-[#16A36A] hover:underline">Signer</button>
+                  <button onclick="openLossModal('DEV-2026-0431')" class="text-xs font-bold text-[#D94B4B] hover:underline">Marquer Refusé</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= PAGE 3 : RELANCES ================= -->
+      <section id="tab-followups" class="tab-content space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-[#101B33]">File des Relances Commerciales</h2>
+          <p class="text-sm text-[#64748B]">Contrôle humain strict : aucun email ne part sans validation explicite.</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm flex items-center gap-3 text-xs font-semibold">
+          <span class="text-[#64748B]">Cadence BTP active :</span>
+          <span class="bg-[#F5F7FB] px-2.5 py-1 rounded border border-slate-200">J+3 (Accusé)</span>
+          <span class="bg-[#F5F7FB] px-2.5 py-1 rounded border border-slate-200">J+7 (Conseil)</span>
+          <span class="bg-[#F5F7FB] px-2.5 py-1 rounded border border-slate-200">J+14 (Planning)</span>
+          <span class="bg-[#F5F7FB] px-2.5 py-1 rounded border border-slate-200">J+30 (Dernier appel)</span>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-red-300 shadow-sm space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-[#101B33]">DEV-2026-0428 - Marc Lefebvre (15 000 € TTC)</span>
+            <span class="px-2 py-0.5 rounded bg-red-100 text-[#D94B4B] font-bold">Retard de 48h</span>
+          </div>
+          <p class="text-xs text-slate-600">Projet : 6 Baies vitrées Aluminium thermolaqué gris 7016</p>
+          <button onclick="openFollowupModal('DEV-2026-0428', 'Marc Lefebvre', '15 000 €', 'J+7')" class="px-4 py-2 bg-[#101B33] hover:bg-[#1C2D4F] text-white text-xs font-bold rounded-lg">
+            Inspecter & Valider l'Envoi
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= PAGE 4 : IMPORT PDF / CSV ================= -->
+      <section id="tab-import" class="tab-content space-y-6">
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-[#101B33]">Importation de Devis</h2>
+          <p class="text-sm text-[#64748B]">Compatible avec vos logiciels existants (ProDevis, Obat, Batappli...).</p>
+        </div>
+
+        <div onclick="simulateExtraction()" class="border-2 border-dashed border-[#CBD5E1] hover:border-[#101B33] bg-white p-10 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-colors text-center">
+          <i class="fa-solid fa-cloud-arrow-up text-3xl text-[#1C2D4F] mb-3"></i>
+          <p class="text-sm font-bold text-[#101B33]">Cliquez pour simuler le chargement d'un devis PDF</p>
+          <p class="text-xs text-[#64748B] mt-1">Extraction automatique des montants et du client par IA</p>
+        </div>
+
+        <div id="import-result" class="hidden bg-white p-6 rounded-xl border border-emerald-300 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+            <span class="font-bold text-xs text-[#16A36A]"><i class="fa-solid fa-circle-check"></i> Données extraites avec succès</span>
+            <span class="text-[11px] bg-emerald-100 text-[#16A36A] px-2 py-0.5 rounded font-bold">Confiance IA : 98%</span>
+          </div>
+          <div class="grid grid-cols-3 gap-3 text-xs">
+            <div><span class="text-slate-500">Devis :</span> <p class="font-bold">DEV-2026-0512</p></div>
+            <div><span class="text-slate-500">Client :</span> <p class="font-bold">Jean-Pierre Roussel</p></div>
+            <div><span class="text-slate-500">Montant TTC :</span> <p class="font-bold">10 080 €</p></div>
+          </div>
+          <button onclick="alert('Devis validé et intégré avec succès !'); document.getElementById('import-result').classList.add('hidden');" class="px-4 py-2 bg-[#16A36A] text-white text-xs font-bold rounded-lg">
+            Confirmer & Intégrer au Portefeuille
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= PAGE 5 : ABONNEMENT ================= -->
+      <section id="tab-subscription" class="tab-content space-y-6">
+        <div class="text-center max-w-xl mx-auto">
+          <h2 class="text-2xl font-bold tracking-tight text-[#101B33]">Formules DevisPilot</h2>
+          <p class="text-xs text-[#64748B] mt-1">Rentabilisé dès le premier devis sauvé.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs max-w-5xl mx-auto">
+          <div class="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-3">
+            <h3 class="font-bold text-sm text-[#101B33]">ESSENTIEL</h3>
+            <p class="text-xl font-bold">49 € <span class="text-xs text-slate-500 font-normal">HT/mois</span></p>
+            <p class="text-slate-600">Jusqu'à 30 devis actifs, relances J+3/J+7, 1 utilisateur.</p>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border-2 border-[#16A36A] shadow-md space-y-3 relative">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#16A36A] text-white text-[10px] font-bold px-3 py-0.5 rounded-full">
+              ACTIF
+            </span>
+            <h3 class="font-bold text-sm text-[#101B33]">PRO</h3>
+            <p class="text-xl font-bold text-[#16A36A]">89 € <span class="text-xs text-slate-500 font-normal">HT/mois</span></p>
+            <p class="text-slate-600">Devis illimités, IA PDF, motifs de perte, jusqu'à 5 commerciaux.</p>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm space-y-3">
+            <h3 class="font-bold text-sm text-[#101B33]">BUSINESS</h3>
+            <p class="text-xl font-bold">149 € <span class="text-xs text-slate-500 font-normal">HT/mois</span></p>
+            <p class="text-slate-600">Multi-sociétés, métreurs illimités, intégration API & n8n.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL 1 : MOTIF DE REFUS OBLIGATOIRE -->
+  <div id="loss-modal" class="hidden fixed inset-0 z-50 bg-[#101B33]/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+      <h3 class="text-base font-bold text-[#D94B4B] mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation"></i> Motif de Refus Obligatoire
+      </h3>
+      <p class="text-xs text-slate-600 mb-4">Pour calculer des statistiques fiables, veuillez préciser pourquoi le prospect n'a pas signé :</p>
+      
+      <select id="loss-reason-select" class="w-full p-2.5 text-xs bg-[#F5F7FB] border border-slate-300 rounded-lg font-medium mb-4">
+        <option value="PRIX_TROP_ELEVE">Prix trop élevé</option>
+        <option value="CONCURRENT_CHOISI">Concurrent choisi</option>
+        <option value="PROJET_REPORTE">Projet reporté</option>
+        <option value="BUDGET_INSUFFISANT">Budget insuffisant</option>
+        <option value="ABSENCE_REPONSE">Absence de réponse</option>
+      </select>
+
+      <div class="flex justify-end gap-2">
+        <button onclick="closeLossModal()" class="px-3 py-1.5 text-xs font-semibold text-slate-600">Annuler</button>
+        <button onclick="confirmLoss()" class="px-4 py-1.5 bg-[#D94B4B] text-white text-xs font-bold rounded-lg">Enregistrer le refus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2 : INSPECTION HUMAINE AVANT ENVOI -->
+  <div id="followup-modal" class="hidden fixed inset-0 z-50 bg-[#101B33]/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+        <h3 class="text-base font-bold text-[#101B33] flex items-center gap-2">
+          <i class="fa-solid fa-envelope-circle-check text-[#16A36A]"></i> Inspection Avant Expédition
+        </h3>
+        <button onclick="closeFollowupModal()" class="text-slate-400 hover:text-slate-700">&times;</button>
+      </div>
+
+      <div class="text-xs bg-[#F5F7FB] p-3 rounded-lg border border-slate-200">
+        <p><span class="text-slate-500">Destinataire :</span> <strong id="modal-client-name">M. Lefebvre</strong></p>
+        <p><span class="text-slate-500">Devis :</span> <strong id="modal-quote-num">DEV-2026-0428</strong> (<span id="modal-quote-price">15 000 €</span>)</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-[#101B33] mb-1">Message personnalisé avant envoi :</label>
+        <textarea id="modal-message-body" rows="5" class="w-full text-xs p-3 border border-slate-300 rounded-lg leading-relaxed bg-white"></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <span class="text-[10px] text-slate-500">* L'email n'est envoyé qu'avec votre validation.</span>
+        <div class="space-x-2">
+          <button onclick="closeFollowupModal()" class="px-3 py-1.5 text-xs font-semibold text-slate-600">Annuler</button>
+          <button onclick="sendFollowupEmail()" class="px-4 py-2 bg-[#16A36A] hover:bg-emerald-700 text-white text-xs font-bold rounded-lg">
+            Valider et Envoyer l'Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById('tab-' + tabId);
+      if (activeEl) activeEl.classList.add('active');
+
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.classList.remove('bg-[#1C2D4F]', 'text-white', 'font-semibold');
+        btn.classList.add('text-slate-300', 'font-medium');
+      });
+
+      const activeBtn = document.getElementById('nav-' + tabId);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-[#1C2D4F]', 'text-white', 'font-semibold');
+        activeBtn.classList.remove('text-slate-300', 'font-medium');
+      }
+    }
+
+    // Modal Refus
+    let currentQuoteRefusing = null;
+    function openLossModal(quoteNum) {
+      currentQuoteRefusing = quoteNum;
+      document.getElementById('loss-modal').classList.remove('hidden');
+    }
+    function closeLossModal() {
+      document.getElementById('loss-modal').classList.add('hidden');
+    }
+    function confirmLoss() {
+      const reason = document.getElementById('loss-reason-select').value;
+      alert("Devis " + currentQuoteRefusing + " marqué Refusé. Motif enregistré : " + reason);
+      closeLossModal();
+    }
+
+    // Modal Relance
+    function openFollowupModal(num, client, price, niveau) {
+      document.getElementById('modal-client-name').innerText = client;
+      document.getElementById('modal-quote-num').innerText = num;
+      document.getElementById('modal-quote-price').innerText = price;
+      document.getElementById('modal-message-body').value = 
+        "Bonjour " + client + ",\n\n" +
+        "Je me permets de revenir vers vous concernant notre proposition n° " + num + " relative à vos menuiseries.\n\n" +
+        "Avez-vous eu l'opportunité de l'examiner ? Nos équipes restent à votre entière disposition pour tout ajustement technique.\n\n" +
+        "Bien cordialement,\nL'équipe Alpes Menuiserie";
+      document.getElementById('followup-modal').classList.remove('hidden');
+    }
+    function closeFollowupModal() {
+      document.getElementById('followup-modal').classList.add('hidden');
+    }
+    function sendFollowupEmail() {
+      alert("Relance validée avec succès ! L'email a été expédié au client.");
+      closeFollowupModal();
+    }
+
+    // Simulation Import IA
+    function simulateExtraction() {
+      setTimeout(() => {
+        document.getElementById('import-result').classList.remove('hidden');
+      }, 400);
+    }
+  </script>
+</body>
+</html>
